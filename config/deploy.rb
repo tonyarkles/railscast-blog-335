@@ -7,7 +7,7 @@ set :user, "deployer"
 set :deploy_to, "/home/#{user}/apps/#{application}"
 set :deploy_via, :remote_cache
 set :use_sudo, false
-
+set :test_log, "log/capistrano-unit-test.log"
 set :scm, "git"
 set :repository, "git@github.com:tonyarkles/#{application}.git"
 set :branch, "master"
@@ -24,6 +24,18 @@ namespace :deploy do
       run "/etc/init.d/unicorn_#{application} #{command}"
     end
   end
+
+  task :run_tests, roles: :app do
+    puts "--> Running unit tests, please wait..."
+    unless system "bundle exec rake test > #{test_log} 2>&1"
+      puts "--> Tests failed, see #{test_log} for test output"
+      exit
+    else
+      puts "--> Tests passed"
+      system "rm #{test_log}"
+    end
+  end
+  before "deploy", "deploy:run_tests"
 
   task :setup_config, roles: :app do
     sudo "ln -nfs #{current_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application}"
