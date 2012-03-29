@@ -2,7 +2,7 @@ require "bundler/capistrano"
 
 server "rails.peakxp.com", :web, :app, :db, primary: true
 
-set :application, "blog"
+set :application, "railscast-blog-335"
 set :user, "deployer"
 set :deploy_to, "/home/#{user}/apps/#{application}"
 set :deploy_via, :remote_cache
